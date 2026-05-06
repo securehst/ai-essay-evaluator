@@ -6,7 +6,7 @@
 
 Before installing AI Essay Evaluator, ensure you have:
 
-- **Python 3.10 or higher** - Check your version with `python --version`
+- **Python 3.11 or higher** - Check your version with `python --version`
 - **OpenAI API Key** - Get one from [OpenAI Platform](https://platform.openai.com/api-keys)
 - **pip** or **uv** package manager (recommended)
 

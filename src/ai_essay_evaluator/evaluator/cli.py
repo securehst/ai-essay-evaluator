@@ -99,9 +99,9 @@ def grader(
     # Determine the AI model if not provided
     if ai_model is None:
         model_mapping = {
-            "extended": "ft:gpt-4o-mini-2024-07-18:securehst::B6YDFKyO",
-            "item-specific": "ft:gpt-4o-mini-2024-07-18:securehst::B72LJHWZ",
-            "short": "ft:gpt-4o-mini-2024-07-18:securehst::B79Kzt5H",
+            "extended": "gpt-4o-mini",
+            "item-specific": "gpt-4o-mini",
+            "short": "gpt-4o-mini",
         }
         ai_model = model_mapping.get(scoring_format)
 

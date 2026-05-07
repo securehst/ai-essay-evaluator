@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.3.6 (2026-05-07)
+
+### Bug fixes
+
+- Update dependency pandas-stubs to v3 ([`ca38821`](https://github.com/securehst/ai-essay-evaluator/commit/ca38821e69efcc6e2a80cd059a278f95871bbdbc))
+
 ## v1.3.5 (2026-05-07)
 
 ### Bug fixes

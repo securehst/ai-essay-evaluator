@@ -50,12 +50,12 @@ jobs:
         id: setup-python
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: astral-sh/setup-uv@v7
+      - uses: astral-sh/setup-uv@v8.1.0
       - run: uv sync --no-python-downloads
         shell: bash
       - run: uv run pytest
         shell: bash
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -97,7 +97,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Attest build provenance
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest-build-provenance@v4
         if: steps.release.outputs.released == 'true'
         with:
           subject-path: "dist/*"

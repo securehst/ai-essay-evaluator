@@ -3,10 +3,14 @@
     "github>browniebroke/renovate-configs:python",
     "config:recommended"
   ],
+  "reviewers": ["securehst"],
+  "assignees": ["securehst"],
   "automerge": true,
   "automergeType": "pr",
   "automergeStrategy": "squash",
   "platformAutomerge": true,
+  "prHourlyLimit": 2,
+  "prConcurrentLimit": 5,
   "rebaseWhen": "behind-base-branch",
   "packageRules": [
     {

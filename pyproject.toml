@@ -47,7 +47,7 @@ docs = [
   "sphinx-wagtail-theme>=6.5.0",
   "myst-parser>=0.16",
   "sphinx>=4",
-  "sphinx-autobuild>=2024,<2025",
+  "sphinx-autobuild>=2025,<2026",
 ]
 
 [tool.ruff]

@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.3.5 (2026-05-07)
+
+### Bug fixes
+
+- Remove claude code reviewer workflow ([`522c97d`](https://github.com/securehst/ai-essay-evaluator/commit/522c97d91af2a98d4f24d6eb257c45ad39ec7daa))
+
 ## v1.3.4 (2026-05-07)
 
 ### Bug fixes

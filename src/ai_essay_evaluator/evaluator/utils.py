@@ -36,10 +36,14 @@ def normalize_response_text(df: pd.DataFrame) -> pd.DataFrame:
     """
     df = df.map(lambda x: ftfy.fix_text(x) if isinstance(x, str) else x)
 
-    # Replace NaN in Student Constructed Response with None
+    # Replace NaN in Student Constructed Response with None.
+    # Use a fresh object-dtype Series so pandas' str dtype (3.0+) doesn't coerce None back to NaN.
     if "Student Constructed Response" in df.columns:
-        df["Student Constructed Response"] = df["Student Constructed Response"].map(
-            lambda x: x if pd.notna(x) else None
+        col = df["Student Constructed Response"]
+        df["Student Constructed Response"] = pd.Series(
+            [x if pd.notna(x) else None for x in col],
+            index=df.index,
+            dtype=object,
         )
     return df
 

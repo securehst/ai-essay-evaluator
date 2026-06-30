@@ -14,19 +14,82 @@ on:
       - labeled
   workflow_dispatch:
 
+permissions:
+  issues: write
+  pull-requests: write
+
 jobs:
   issue-manager:
     runs-on: self-hosted
     steps:
-      - uses: tiangolo/issue-manager@48bacd85fb842cc27efee25e834edb00aad8f263 # 0.8.0
+      # Replaces tiangolo/issue-manager (Docker action) with GitHub's first-party
+      # github-script. Same behavior: per-label delay, only close when no one has
+      # replied since the label was applied, and post a per-label message. No
+      # third-party image to break — see CONFIG below to adjust labels/delays.
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          config: >
-            {
-              "answered": {
-                "message": "Assuming the original issue was solved, it will be automatically closed now."
+          script: |
+            // label -> { delayDays, message }  (issue-manager's default delay was 10 days)
+            const CONFIG = {
+              answered: {
+                delayDays: 10,
+                message: "Assuming the original issue was solved, it will be automatically closed now.",
               },
-              "waiting": {
-                "message": "Automatically closing. To re-open, please provide the additional information requested."
+              waiting: {
+                delayDays: 10,
+                message: "Automatically closing. To re-open, please provide the additional information requested.",
+              },
+            };
+            const { owner, repo } = context.repo;
+            const now = Date.now();
+            const closed = new Set(); // an item closed under one label is not reprocessed under another
+
+            for (const [label, { delayDays, message }] of Object.entries(CONFIG)) {
+              const items = await github.paginate(github.rest.issues.listForRepo, {
+                owner, repo, state: "open", labels: label, per_page: 100,
+              });
+              for (const item of items) {
+                if (closed.has(item.number)) continue;
+
+                // When was THIS label most recently applied? (issue events endpoint, lighter than the timeline)
+                const events = await github.paginate(github.rest.issues.listEvents, {
+                  owner, repo, issue_number: item.number, per_page: 100,
+                });
+                const labeledAt = events
+                  .filter(e => e.event === "labeled" && e.label?.name === label)
+                  .map(e => new Date(e.created_at).getTime())
+                  .reduce((a, b) => Math.max(a, b), 0);
+                if (!labeledAt) continue;
+
+                // Latest human comment (skip the call when there are none; ignore our own bot comments)
+                let lastCommentAt = 0;
+                if (item.comments > 0) {
+                  const comments = await github.paginate(github.rest.issues.listComments, {
+                    owner, repo, issue_number: item.number, per_page: 100,
+                  });
+                  lastCommentAt = comments
+                    .filter(c => c.user?.login !== "github-actions[bot]")
+                    .map(c => new Date(c.created_at).getTime())
+                    .reduce((a, b) => Math.max(a, b), 0);
+                }
+
+                // Someone replied AFTER the label was applied -> invalidate: drop the label, don't close
+                if (lastCommentAt > labeledAt) {
+                  try {
+                    await github.rest.issues.removeLabel({ owner, repo, issue_number: item.number, name: label });
+                  } catch (err) {
+                    if (err.status !== 404) {
+                      core.warning(`Could not remove '${label}' from #${item.number}: ${err.message}`);
+                    }
+                  }
+                  continue;
+                }
+
+                // Configured delay has elapsed since the label was applied -> comment + close
+                if (now - labeledAt >= delayDays * 86400000) {
+                  await github.rest.issues.createComment({ owner, repo, issue_number: item.number, body: message });
+                  await github.rest.issues.update({ owner, repo, issue_number: item.number, state: "closed" });
+                  closed.add(item.number);
+                }
               }
             }

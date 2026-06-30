@@ -1,0 +1,35 @@
+name: Auto Assign
+
+on:
+  issues:
+    types:
+      - opened
+  pull_request_target:
+    types:
+      - opened
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  auto-assign:
+    runs-on: self-hosted
+    steps:
+      # Assign the securehst account to every newly-opened issue and pull request
+      # so they generate assignment notifications. First-party github-script, no
+      # third-party action — see ASSIGNEES below to change who gets assigned.
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const ASSIGNEES = ["securehst"];
+            const { owner, repo } = context.repo;
+            // PRs are issues in the REST API, so addAssignees covers both.
+            const number = context.payload.issue?.number ?? context.payload.pull_request?.number;
+            if (!number) return;
+            try {
+              await github.rest.issues.addAssignees({ owner, repo, issue_number: number, assignees: ASSIGNEES });
+            } catch (err) {
+              core.warning(`Could not assign [${ASSIGNEES.join(", ")}] to #${number}: ${err.message}`);
+            }

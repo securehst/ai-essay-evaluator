@@ -30,6 +30,7 @@ jobs:
             if (!number) return;
             try {
               await github.rest.issues.addAssignees({ owner, repo, issue_number: number, assignees: ASSIGNEES });
+              core.info(`Assigned [${ASSIGNEES.join(", ")}] to #${number}`);
             } catch (err) {
               core.warning(`Could not assign [${ASSIGNEES.join(", ")}] to #${number}: ${err.message}`);
             }

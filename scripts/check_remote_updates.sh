@@ -35,17 +35,23 @@ else
     echo "Checking if merging is possible..."
 
     # Try to merge without committing. `merge-tree --write-tree` (git 2.38+)
-    # exits 0 for a clean merge and 1 on conflict; any other status means the
-    # flag is unsupported, so fall back to the deprecated three-arg form. That
-    # form prints its markers as part of a diff, so they carry a leading '+' —
-    # the previous `^<<<<<<< ` pattern anchored past it and never matched, which
-    # meant conflicts were always reported as clean.
+    # reports the outcome through its exit status: 0 for a clean merge, 1 on
+    # conflict. Git specifies only those two; anything else means the merge
+    # could not run, which this hook cannot interpret — so it blocks the push
+    # rather than guessing.
+    #
+    # The previous check grepped the deprecated three-arg form for '^<<<<<<< '.
+    # That form exits 0 even on conflict and prints its markers inside a diff,
+    # so the real line is '+<<<<<<< .our' and the anchored pattern could never
+    # match: every conflicting divergence was reported as clean.
     MERGE_STATUS=0
     git merge-tree --write-tree @ "origin/$BRANCH" >/dev/null 2>&1 || MERGE_STATUS=$?
 
     if [ "$MERGE_STATUS" -gt 1 ]; then
-        MERGE_STATUS=0
-        git merge-tree "$BASE" @ "origin/$BRANCH" | grep -q '^+<<<<<<<' && MERGE_STATUS=1
+        echo "ERROR: Could not test-merge origin/$BRANCH (git merge-tree exited $MERGE_STATUS)."
+        echo "This hook requires git 2.38 or newer."
+        echo "  Yours: $(git --version)"
+        exit 1
     fi
 
     if [ "$MERGE_STATUS" -ne 0 ]; then

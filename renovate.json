@@ -3,6 +3,10 @@
     "github>browniebroke/renovate-configs:python",
     "config:recommended"
   ],
+  "description": [
+    "Dependency updates are batched into a single weekly window. Renovate drove 92 of 126 CI runs over a 30-day sample; with one self-hosted runner executing jobs serially, that churn is the dominant source of CI latency in this repo.",
+    "Security updates deliberately bypass every throttle below - see vulnerabilityAlerts."
+  ],
   "reviewers": ["securehst"],
   "assignees": ["securehst"],
   "automerge": true,
@@ -11,7 +15,15 @@
   "platformAutomerge": true,
   "prHourlyLimit": 2,
   "prConcurrentLimit": 5,
-  "rebaseWhen": "behind-base-branch",
+  "schedule": ["before 4am on monday"],
+  "minimumReleaseAge": "3 days",
+  "rebaseWhen": "conflicted",
+  "vulnerabilityAlerts": {
+    "description": "Security fixes ignore the weekly window and the release-age delay, and open immediately.",
+    "schedule": ["at any time"],
+    "minimumReleaseAge": null,
+    "prCreation": "immediate"
+  },
   "packageRules": [
     {
       "matchManagers": ["uv"],

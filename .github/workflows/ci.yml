@@ -35,14 +35,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # No `os` axis: every job runs on the same Linux self-hosted runner, so a
+        # matrix over ubuntu/windows/macOS produced 3x identical jobs per Python
+        # version. Restore it only alongside `runs-on: ${{ matrix.os }}` and
+        # GitHub-hosted runners.
         python-version:
           - "3.11"
           - "3.12"
           - "3.13"
-        os:
-          - ubuntu-latest
-          - windows-latest
-          - macOS-latest
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -65,6 +65,10 @@ jobs:
       - lint
       - commitlint
 
+    # Only on a merge to main. Previously this job also spun up on every PR just
+    # to run a PSR `--noop` dry run, which meant a full release job per PR.
+    if: github.event_name == 'push' && github.ref_name == 'main'
+
     runs-on: self-hosted
     environment: release
     concurrency: release
@@ -80,19 +84,11 @@ jobs:
           fetch-tags: true
           ref: main
 
-      # Do a dry run of PSR
-      - name: Test release
-        uses: python-semantic-release/python-semantic-release@39dd2052f2ce8282a5d932c31d58a2ca06d2550e # v10
-        if: github.ref_name != 'main'
-        with:
-          root_options: --noop
-          github_token: noop
-
-      # On main branch: actual PSR + upload to PyPI & GitHub
+      # Actual PSR + upload to PyPI & GitHub. The job-level `if` already
+      # restricts this to pushes on main.
       - name: Release
         uses: python-semantic-release/python-semantic-release@39dd2052f2ce8282a5d932c31d58a2ca06d2550e # v10
         id: release
-        if: github.ref_name == 'main'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 

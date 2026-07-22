@@ -1,17 +1,12 @@
 name: Issue Manager
 
 on:
+  # Weekly is enough: the script does a full repo-wide sweep for the labels in
+  # CONFIG below, and the shortest delay it enforces is 10 days. The old
+  # issue_comment / issues:labeled / pull_request_target:labeled triggers ran the
+  # same sweep on every label and comment event, which the sweep already covers.
   schedule:
-    - cron: "0 0 * * *"
-  issue_comment:
-    types:
-      - created
-  issues:
-    types:
-      - labeled
-  pull_request_target:
-    types:
-      - labeled
+    - cron: "0 0 * * 1"
   workflow_dispatch:
 
 permissions:

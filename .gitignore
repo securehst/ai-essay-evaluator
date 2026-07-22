@@ -141,3 +141,7 @@ cython_debug/
 
 # Pycharm Files
 .idea/
+
+# Local scratch invocation notes. These hold real API keys and project paths,
+# so they must never be committed — this repo is public.
+RUNME.md

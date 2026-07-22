@@ -5,7 +5,9 @@ on:
     branches:
       - main
     paths:
-      - ".github/**"
+      # Only the label config matters here — ".github/**" re-synced labels on
+      # every workflow file change.
+      - ".github/labels.toml"
 
 jobs:
   labels:

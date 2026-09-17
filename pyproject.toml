@@ -5,7 +5,10 @@ requires = [ "setuptools" ]
 [project]
 name = "ai-essay-evaluator"
 version = "1.3.8"
-description = "This repository provides a modular framework for generating, validating, merging, uploading, and fine-tuning OpenAI GPT-4o-mini models using structured JSONL datasets."
+description = """\
+  This repository provides a modular framework for generating, validating, merging, uploading, and fine-tuning OpenAI \
+  GPT-4o-mini models using structured JSONL datasets.\
+  """
 readme = "README.md"
 license = { text = "MIT" }
 authors = [
@@ -17,20 +20,22 @@ classifiers = [
   "Intended Audience :: Developers",
   "Natural Language :: English",
   "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3.15",
   "Topic :: Software Development :: Libraries",
 ]
-
 dependencies = [
-    "ftfy>=6.3.1",
-    "openai>=1.65.3",
-    "pandas>=2.2.3",
-    "pandas-stubs==3.0.5.260730",
-    "pydantic>=2.10.6",
-    "tenacity>=9.0.0",
-    "typer>=0.15.2",
+  "ftfy>=6.3.1",
+  "openai>=1.65.3",
+  "pandas>=2.2.3",
+  "pandas-stubs==3.0.5.260730",
+  "pydantic>=2.10.6",
+  "tenacity>=9",
+  "typer>=0.15.2",
 ]
 urls."Bug Tracker" = "https://github.com/markm-io/ai-essay-evaluator/issues"
 urls.Changelog = "https://github.com/markm-io/ai-essay-evaluator/blob/main/CHANGELOG.md"
@@ -44,10 +49,10 @@ dev = [
   "pytest-cov>=7,<8",
 ]
 docs = [
-  "sphinx-wagtail-theme>=6.5.0",
   "myst-parser>=0.16",
   "sphinx>=4",
   "sphinx-autobuild>=2025,<2026",
+  "sphinx-wagtail-theme>=6.5",
 ]
 
 [tool.ruff]
@@ -56,21 +61,21 @@ line-length = 120
 lint.select = [
   "B",   # flake8-bugbear
   "C4",  # flake8-comprehensions
-  "S",   # flake8-bandit
-  "F",   # pyflake
   "E",   # pycodestyle
-  "W",   # pycodestyle
-  "UP",  # pyupgrade
+  "F",   # pyflake
   "I",   # isort
   "RUF", # ruff specific
+  "S",   # flake8-bandit
+  "UP",  # pyupgrade
+  "W",   # pycodestyle
 ]
 lint.ignore = [
   "B008", # Do not perform function calls in argument defaults
-  "D203", # 1 blank line required before class docstring
-  "D212", # Multi-line docstring summary should start at the first line
   "D100", # Missing docstring in public module
   "D104", # Missing docstring in public package
   "D107", # Missing docstring in `__init__`
+  "D203", # 1 blank line required before class docstring
+  "D212", # Multi-line docstring summary should start at the first line
   "D401", # First line of docstring should be in imperative mood
 ]
 lint.per-file-ignores."conftest.py" = [ "D100" ]
@@ -87,82 +92,65 @@ lint.per-file-ignores."tests/**/*" = [
 ]
 lint.isort.known-first-party = [ "ai_essay_evaluator", "tests" ]
 
-[tool.pytest.ini_options]
-addopts = """\
+[tool.mypy]
+mypy_path = "src/"
+exclude = [
+  "docs/.*",
+  "setup.py",
+]
+disallow_any_generics = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+warn_unused_ignores = true
+warn_unreachable = true
+overrides = [ { module = "tests.*", allow_untyped_defs = true }, { module = "docs.*", ignore_errors = true } ]
+no_implicit_optional = true
+show_error_codes = true
+
+[tool.pytest]
+ini_options.pythonpath = [ "src" ]
+ini_options.addopts = """\
     -v
     -Wdefault
     --cov=ai_essay_evaluator
     --cov-report=term
     --cov-report=xml
     """
-pythonpath = [ "src" ]
 
-[tool.coverage.run]
-branch = true
-
-[tool.coverage.report]
-exclude_lines = [
-  "pragma: no cover",
+[tool.coverage]
+run.branch = true
+report.exclude_lines = [
   "@overload",
-  "if TYPE_CHECKING",
-  "raise NotImplementedError",
   'if __name__ == "__main__":',
+  "if TYPE_CHECKING",
+  "pragma: no cover",
+  "raise NotImplementedError",
 ]
-
-[tool.mypy]
-check_untyped_defs = true
-disallow_any_generics = true
-disallow_incomplete_defs = true
-disallow_untyped_defs = true
-mypy_path = "src/"
-no_implicit_optional = true
-show_error_codes = true
-warn_unreachable = true
-warn_unused_ignores = true
-exclude = [
-  'docs/.*',
-  'setup.py',
-]
-
-[[tool.mypy.overrides]]
-module = "tests.*"
-allow_untyped_defs = true
-
-[[tool.mypy.overrides]]
-module = "docs.*"
-ignore_errors = true
 
 [tool.semantic_release]
-version_toml = [ "pyproject.toml:project.version" ]
 version_variables = [
   "src/ai_essay_evaluator/__init__.py:__version__",
   "docs/conf.py:release",
 ]
+version_toml = [ "pyproject.toml:project.version" ]
 build_command = """
 pip install uv
 uv lock
 git add uv.lock
 uv build
 """
-
-[tool.semantic_release.changelog]
-exclude_commit_patterns = [
+branches.main.match = "main"
+branches.noop.match = "(?!main$)"
+branches.noop.prerelease = true
+changelog.environment.keep_trailing_newline = true
+changelog.exclude_commit_patterns = [
   '''chore(?:\([^)]*?\))?: .+''',
   '''ci(?:\([^)]*?\))?: .+''',
   '''refactor(?:\([^)]*?\))?: .+''',
   '''style(?:\([^)]*?\))?: .+''',
   '''test(?:\([^)]*?\))?: .+''',
   '''build\((?!deps\): .+)''',
-  '''Merged? .*''',
-  '''Initial [Cc]ommit.*''', # codespell:ignore
+  "Merged? .*",
+  "Initial [Cc]ommit.*",             # codespell:ignore
 ]
-
-[tool.semantic_release.changelog.environment]
-keep_trailing_newline = true
-
-[tool.semantic_release.branches.main]
-match = "main"
-
-[tool.semantic_release.branches.noop]
-match = "(?!main$)"
-prerelease = true

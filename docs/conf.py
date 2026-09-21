@@ -15,7 +15,7 @@ from sphinx.ext import apidoc
 project = "AI Essay Evaluator"
 copyright = "2025, Mark Moreno"
 author = "Mark Moreno"
-release = "1.3.8"
+release = "1.3.9"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

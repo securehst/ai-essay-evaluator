@@ -18,8 +18,7 @@ jobs:
     # Skip bot-opened issues and pull requests. Renovate PRs already carry
     # assignees from renovate.json, and its Dependency Dashboard issue doesn't
     # need one — so every bot event here is a wasted run per dependency bump.
-    if: github.event.sender.type != 'Bot'
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       # Assign the securehst account to every newly-opened issue and pull request
       # so they generate assignment notifications. First-party github-script, no

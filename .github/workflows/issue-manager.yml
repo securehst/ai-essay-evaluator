@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   issue-manager:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       # Replaces tiangolo/issue-manager (Docker action) with GitHub's first-party
       # github-script. Same behavior: per-label delay, only close when no one has

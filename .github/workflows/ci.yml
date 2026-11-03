@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   lint:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
@@ -24,7 +24,7 @@ jobs:
   # https://www.conventionalcommits.org
   commitlint:
     name: Lint Commit Messages
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -35,15 +35,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # No `os` axis: every job runs on the same Linux self-hosted runner, so a
-        # matrix over ubuntu/windows/macOS produced 3x identical jobs per Python
-        # version. Restore it only alongside `runs-on: ${{ matrix.os }}` and
-        # GitHub-hosted runners.
+        # No `os` axis: it was dropped while every job ran on one Linux self-hosted
+        # runner, where a matrix over ubuntu/windows/macOS produced 3x identical
+        # jobs per Python version. Jobs now run on GitHub-hosted runners, so it can
+        # be restored alongside `runs-on: ${{ matrix.os }}`.
         python-version:
           - "3.11"
           - "3.12"
           - "3.13"
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
@@ -69,7 +69,7 @@ jobs:
     # to run a PSR `--noop` dry run, which meant a full release job per PR.
     if: github.event_name == 'push' && github.ref_name == 'main'
 
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     environment: release
     concurrency: release
     permissions:

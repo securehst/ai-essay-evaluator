@@ -43,6 +43,11 @@
     {
       "matchUpdateTypes": ["major"],
       "automerge": false
+    },
+    {
+      "description": "Lock file maintenance re-resolves to the newest releases each week, so it can never meet minimumReleaseAge and its PR would never automerge. Exempt it, as vulnerabilityAlerts is.",
+      "matchUpdateTypes": ["lockFileMaintenance"],
+      "minimumReleaseAge": null
     }
   ]
 }
